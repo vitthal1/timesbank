@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Extend the default theme with custom colors (v4 CSS-first config). */
+@theme {
+  --color-primary: #3B82F6;
+  --color-secondary: #10B981;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom toast styles */
+.toaster {
+  @apply max-w-md;
+}
