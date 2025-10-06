@@ -2,12 +2,11 @@
   "name": "timebank-frontend",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+"scripts": {
+  "build": "next build",
+  "postbuild": "",
+  "export": "echo \"use next build with output: 'export' instead of next export\""
+},
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@supabase/supabase-js": "^2.58.0",
