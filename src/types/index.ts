@@ -56,7 +56,7 @@ export interface UserSkill {
 }
 
 /**
- * Ledger transaction interface matching the 'ledger' table (renamed from TimeTransaction for clarity).
+ * Ledger transaction interface matching the 'ledger' table.
  */
 export interface TimeTransaction {
   id: string; // UUID primary key, auto-generated
@@ -76,6 +76,39 @@ export interface TimeTransaction {
 }
 
 /**
+ * Transfer form input - subset of TimeTransaction for creating transfers
+ */
+export interface TransferFormInput {
+  to_user: string; // Required: recipient user ID or username
+  hours: number; // Required: hours to transfer (must be positive)
+  note?: string; // Optional: transfer note/description
+  skill_id?: string; // Optional: related skill ID
+}
+
+/**
+ * Transfer request payload for API
+ */
+export interface CreateTransferRequest {
+  from_user: string; // Sender user ID
+  to_user: string; // Recipient user ID (resolved from username if needed)
+  hours: number; // Hours to transfer
+  transaction_type?: 'transfer' | 'service'; // Defaults to 'transfer'
+  status?: 'pending' | 'completed'; // Defaults to 'completed'
+  note?: string; // Optional note
+  skill_id?: string; // Optional skill reference
+}
+
+/**
+ * Transfer response from API
+ */
+export interface TransferResponse {
+  success: boolean;
+  transaction?: TimeTransaction;
+  error?: string;
+  message?: string;
+}
+
+/**
  * Notification interface matching the 'notifications' table.
  */
 export interface Notification {
@@ -91,7 +124,6 @@ export interface Notification {
 
 /**
  * Derived Match interface for user-skill matching logic.
- * References updated User and Skill types; matchScore is computed (e.g., via algorithm).
  */
 export interface Match {
   user: User;
@@ -137,7 +169,6 @@ export interface ServiceRequest {
 
 /**
  * Admin Action Log interface matching the 'admin_action_logs' table.
- * Tracks all administrative actions for audit purposes.
  */
 export interface AdminActionLog {
   id: string; // UUID primary key
@@ -154,7 +185,6 @@ export interface AdminActionLog {
 
 /**
  * System Statistics interface for dashboard metrics.
- * This is a computed view, not a table.
  */
 export interface SystemStats {
   total_users: number;
@@ -193,3 +223,108 @@ export interface TransactionWithDetails extends TimeTransaction {
   };
   skill_name?: string;
 }
+
+// ============================================
+// VALIDATION HELPERS
+// ============================================
+
+/**
+ * Validates transfer input
+ */
+export function validateTransferInput(input: TransferFormInput): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  if (!input.to_user || input.to_user.trim() === '') {
+    errors.push('Recipient is required');
+  }
+
+  if (!input.hours || input.hours <= 0) {
+    errors.push('Hours must be greater than 0');
+  }
+
+  if (input.hours && input.hours > 1000) {
+    errors.push('Hours cannot exceed 1000');
+  }
+
+  // Validate hours has max 2 decimal places
+  if (input.hours && !Number.isInteger(input.hours * 100)) {
+    errors.push('Hours can have at most 2 decimal places');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Type guard to check if a transaction is pending
+ */
+export function isPendingTransaction(transaction: TimeTransaction): boolean {
+  return transaction.status === 'pending';
+}
+
+/**
+ * Type guard to check if a transaction is completed
+ */
+export function isCompletedTransaction(transaction: TimeTransaction): boolean {
+  return transaction.status === 'completed';
+}
+
+/**
+ * Format hours for display
+ */
+export function formatHours(hours: number): string {
+  return hours.toFixed(2);
+}
+
+/**
+ * Parse hours from string input
+ */
+export function parseHours(value: string): number | null {
+  const parsed = parseFloat(value);
+  if (isNaN(parsed) || parsed < 0) {
+    return null;
+  }
+  return Math.round(parsed * 100) / 100; // Round to 2 decimal places
+}
+
+// ============================================
+// API RESPONSE TYPES
+// ============================================
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+// ============================================
+// FORM STATE TYPES
+// ============================================
+
+export interface FormState<T> {
+  data: T;
+  errors: Record<keyof T, string>;
+  isSubmitting: boolean;
+  isDirty: boolean;
+}
+
+export interface TransferFormState extends FormState<TransferFormInput> {
+  recipientUser?: User | null;
+  availableBalance: number;
+}
+
+// Export all types

@@ -20,11 +20,15 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     const result = await signIn(email, password)
-    
+
     if (result.success) {
-      router.push('/dashboard')
+      try {
+        await router.replace('/dashboard')
+      } catch (err) {
+        if (!err.message.includes('Abort')) console.error(err)
+      }
     } else {
       setIsSubmitting(false)
     }
@@ -72,6 +76,20 @@ export default function LoginForm() {
             </div>
           </div>
 
+          <div className="text-right">
+            {isSubmitting ? (
+              <span className="text-white/50 text-sm font-medium underline transition opacity-50 cursor-not-allowed">
+                Forgot Password?
+              </span>
+            ) : (
+              <a
+                href="/reset-password"
+                className="text-white/70 hover:text-white text-sm font-medium underline transition"
+              >
+                Forgot Password?
+              </a>
+            )}
+          </div>
           {error && (
             <div className="bg-red-500/20 border border-red-400 text-white px-4 py-3 rounded-lg text-sm">
               {error}

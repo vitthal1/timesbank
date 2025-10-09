@@ -17,6 +17,7 @@ import UserProfile from '../../components/Dashboard/UserProfile';
 import ChangePasswordForm from '../../components/Auth/ChangePasswordForm';
 import ServiceOfferingsManager from '../../components/Dashboard/ServiceOfferingsManager';
 import { NotificationBell } from '../../components/Notifications/NotificationBell';
+import  FeeCollectionMonitor  from '../../components/Admin/FeeCollectionMonitor';
 import MarketplacePage from '../marketplace';
 import AdminControlPanel from '../../components/Admin/AdminControlPanel';
 import type { User } from '../../types';
@@ -297,7 +298,7 @@ function DashboardContent({ user, onSignOut }: DashboardContentProps) {
                 </div>
               </div>
               <section className="p-8" aria-labelledby="services-heading">
-                <ServiceOfferingsManager userId={user.id} />
+                <ServiceOfferingsManager user_id={user.id} />
               </section>
             </div>
           </div>
@@ -334,6 +335,7 @@ function DashboardContent({ user, onSignOut }: DashboardContentProps) {
           <section className="w-full" aria-labelledby="admin-heading">
             <AdminControlPanel />
           </section>
+
         ) : null;
       default:
         return null;
@@ -494,8 +496,8 @@ export default function DashboardPage() {
         <div className="text-center">
           <div className="relative w-20 h-20 mx-auto mb-8">
             <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-blue-600 rounded-full animate-spin border-t-transparent" role="status"></div>
-            <div className="absolute inset-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 border-4 border-blue-900 rounded-full animate-spin border-t-transparent" role="status"></div>
+            <div className="absolute inset-3 bg-gradient-to-br from-blue-900 to-indigo-900 rounded-full flex items-center justify-center">
               <Clock className="w-8 h-8 text-white animate-pulse" />
             </div>
           </div>
